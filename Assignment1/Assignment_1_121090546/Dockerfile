@@ -23,26 +23,11 @@ RUN wget https://github.com/Kitware/CMake/releases/download/v3.19.2/cmake-3.19.2
 RUN tar -xzvf cmake-3.19.2.tar.gz
 WORKDIR /root/cmake-3.19.2
 RUN ./bootstrap --prefix=/usr/local/cmake-3.19.2
+RUN make -j 16
 RUN make
 RUN make install
-# 
-# 
-# 
-# 
-# 
-# 
-# 
-# 
-# 
-# WORKDIR /tmp
-# RUN curl -O https://github.com/Kitware/CMake/releases/download/v3.19.2/cmake-3.19.2-Linux-x86_64.tar.gz\
-#     && tar -zxvf cmake-3.19.2-Linux-x86_64.tar.gz\
-#     && cd cmake-3.19.2-Linux-x86_64\
-#     && ./bootstrap\
-#     && make\
-#     && make install
 
 WORKDIR /app
-RUN export PATH=/usr/local/cmake-3.19.2/bin
+ENV PATH=/usr/local/cmake-3.19.2/bin:${PATH}
 RUN cmake -DCMAKE_BUILD_TYPE=Debug .
-CMD [ "gdb", "./assignment1" ]
+CMD [ "/bin/bash", "-c", "gdb", "./assignment1" ]
