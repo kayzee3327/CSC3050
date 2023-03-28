@@ -3,6 +3,8 @@
 
 #include <string>
 #include <unordered_map>
+#include <fstream>
+
 #include <stdlib.h>
 typedef u_int32_t mem_t;
 typedef u_int32_t instruction_t;
@@ -23,16 +25,16 @@ void simulation(
     mem_t & fp,
     mem_t & sp,
     mem_t & gp,
-    FILE *f_in, 
-    FILE *f_out,
+    std::ifstream & f_in, 
+    std::ofstream & f_out,
     u_int32_t & currentHeapBlock, 
     u_int32_t & currentHeapBlock_size, 
     u_int32_t & dynamic_top 
 );
-instruction_t getInstruction(mem_t currentPC, unsigned long real_mem);
+instruction_t getInstruction(mem_t currentPC, void* real_mem);
 void callInstruction(
     S currentInsStr, ui32 *regis_0, ui32 &HI, ui32 &LO, ui32 &PC, 
-    FILE *f_in, FILE *f_out, unsigned long real_mem, ui32 &currentHeapBlock, 
+    std::ifstream & f_in, std::ofstream & f_out, void* real_mem, ui32 &currentHeapBlock, 
     ui32 &currentHeapBlock_size, ui32 &dynamic_top
 );
 

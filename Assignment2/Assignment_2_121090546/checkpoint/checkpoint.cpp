@@ -2,12 +2,14 @@
 
 #include <set>
 #include <cstdio>
+#include <fstream>
 // checkpoint
 std::set<int> checkpoints;
-void init_checkpoints(char* checkpoint_file) {
+void init_checkpoints(const char* checkpoint_file) {
     FILE *fp = fopen(checkpoint_file, "r");
     int tmp, i = 0;
     while(fscanf(fp, "%d", &tmp) != EOF){
+        printf("%d\n", tmp);
         checkpoints.insert(tmp);
     }
 }

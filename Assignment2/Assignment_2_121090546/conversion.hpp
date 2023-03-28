@@ -14,11 +14,13 @@ inline std::string toBinary32str(u_int32_t x){
     b32 bs(x);
     return bs.to_string();
 }
-inline u_int32_t toBinary(S s){
+//toBinary
+inline u_int32_t binstrTo32uint(S s){
     b32 bs(s);
     return bs.to_ulong();
 }
-inline u_int16_t toBinary16uint(S s){
+//toBinary16uint
+inline u_int16_t binstrTo16uint(S s){
     b16 bs(s);
     return bs.to_ulong();
 }
@@ -26,6 +28,8 @@ inline unsigned long binstrToUL(S s){
     std::bitset<5> bs(s);
     return bs.to_ulong();
 }
-inline u_int64_t getRealMem(mem_t mem, unsigned long real_mem){
-    return mem - 0x400000 + (u_int64_t)(real_mem);
+inline void* getRealMem(mem_t mem, void* real_mem){
+    u_int8_t* real_pos = (u_int8_t*)real_mem;
+    real_pos = real_pos + mem - 0x400000;
+    return (void*)real_pos;
 }

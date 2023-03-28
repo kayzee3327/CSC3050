@@ -1,6 +1,9 @@
 #include "IInstruction.hpp"
 
-#include "conversion.hpp"
+#include "../conversion.hpp"
+
+#include <string.h>
+
 #include <iostream>
 #include <unordered_map>
 S I_opcode, I_rs, I_rt, immediate;
@@ -90,8 +93,9 @@ void callIInstruction(
     S _rs,
     S _rt,
     S _immediate,
-    u_int32_t PC,
-    unsigned long _real_mem
+    u_int32_t* regis_0,
+    void* real_mem,
+    ui32 & PC
 ) {
     I_opcode = _I_opcode;
     I_rs = _rs;
@@ -100,24 +104,23 @@ void callIInstruction(
     I_OPCODE = binstrToUL(I_opcode);
     I_RS = binstrToUL(I_rs);
     I_RT = binstrToUL(I_rt);
-    IMMEDIATE = toBinary16uint(immediate);
-    ui32* Regis_0;
-    unsigned long real_mem;
+    IMMEDIATE = binstrTo16uint(immediate);
+    
     if (I_opcode == I_opcd["addi"]){
-        addi(Regis_0);
+        addi(regis_0);
     }
     else if(I_opcode == I_opcd["addiu"]){
-        addiu(Regis_0);
+        addiu(regis_0);
     }
     else if(I_opcode == I_opcd["andi"]){
-        andi(Regis_0);        
+        andi(regis_0);        
     }
     else if(I_opcode == I_opcd["beq"]){
-        beq(Regis_0, PC);
+        beq(regis_0, PC);
     }
     else if(I_opcode == I_opcd["bgez"]){
         if (I_rt == rt_notes["bgez"]){
-            bgez(Regis_0, PC);
+            bgez(regis_0, PC);
         }
         else {
             std::cout << "<callIInstruction> Invalid I_rt of bgez: " << I_rt << std::endl;
@@ -127,7 +130,7 @@ void callIInstruction(
     }
     else if(I_opcode == I_opcd["bgtz"]){
         if (I_rt == rt_notes["bgtz"]){
-            bgtz(Regis_0, PC);
+            bgtz(regis_0, PC);
         }
         else {
             std::cout << "<callIInstruction> Invalid I_rt of bgtz: " << I_rt << std::endl;
@@ -137,7 +140,7 @@ void callIInstruction(
     }
     else if(I_opcode == I_opcd["blez"]){
         if (I_rt == rt_notes["blez"]){
-            blez(Regis_0, PC);
+            blez(regis_0, PC);
         }
         else {
             std::cout << "<callIInstruction> Invalid I_rt of blez: " << I_rt << std::endl;
@@ -147,7 +150,7 @@ void callIInstruction(
     }
     else if(I_opcode == I_opcd["bltz"]){
         if (I_rt == rt_notes["bltz"]){
-            bltz(Regis_0, PC);
+            bltz(regis_0, PC);
         }
         else {
             std::cout << "<callIInstruction> Invalid I_rt of bltz: " << I_rt << std::endl;
@@ -156,58 +159,58 @@ void callIInstruction(
         }
     }
     else if(I_opcode == I_opcd["bne"]){
-        bne(Regis_0, PC);
+        bne(regis_0, PC);
     }
     else if(I_opcode == I_opcd["lb"]){
-        lb(Regis_0, real_mem);
+        lb(regis_0, real_mem);
     }
     else if(I_opcode == I_opcd["lbu"]){
-        lbu(Regis_0, real_mem);
+        lbu(regis_0, real_mem);
     }
     else if(I_opcode == I_opcd["lh"]){
-        lh(Regis_0, real_mem);
+        lh(regis_0, real_mem);
     }
     else if(I_opcode == I_opcd["lhu"]){
-        lhu(Regis_0, real_mem);
+        lhu(regis_0, real_mem);
     }
     else if(I_opcode == I_opcd["lui"]){
-        lui(Regis_0, real_mem);
+        lui(regis_0, real_mem);
     }
     else if(I_opcode == I_opcd["lw"]){
-        lw(Regis_0, real_mem);
+        lw(regis_0, real_mem);
     }
     else if(I_opcode == I_opcd["ori"]){
-        ori(Regis_0);
+        ori(regis_0);
     }
     else if(I_opcode == I_opcd["sb"]){
-        sb(Regis_0, real_mem);
+        sb(regis_0, real_mem);
     }
     else if(I_opcode == I_opcd["slti"]){
-        slti(Regis_0);
+        slti(regis_0);
     }
     else if(I_opcode == I_opcd["sltiu"]){
-        sltiu(Regis_0);
+        sltiu(regis_0);
     }
     else if(I_opcode == I_opcd["sh"]){
-        sh(Regis_0, real_mem);
+        sh(regis_0, real_mem);
     }
     else if(I_opcode == I_opcd["sw"]){
-        sw(Regis_0, real_mem);
+        sw(regis_0, real_mem);
     }
     else if(I_opcode == I_opcd["xori"]){
-        xori(Regis_0);
+        xori(regis_0);
     }
     else if(I_opcode == I_opcd["lwl"]){
-        lwl(Regis_0, real_mem);
+        lwl(regis_0, real_mem);
     }
     else if(I_opcode == I_opcd["lwr"]){
-        lwr(Regis_0, real_mem);
+        lwr(regis_0, real_mem);
     }
     else if(I_opcode == I_opcd["swl"]){
-        swl(Regis_0, real_mem);
+        swl(regis_0, real_mem);
     }
     else if(I_opcode == I_opcd["swr"]){
-        swr(Regis_0, real_mem);
+        swr(regis_0, real_mem);
     }
     else {
         std::cout << "<callIInstruction> invalid I_opcode: " << I_opcode << std::endl;
@@ -255,44 +258,48 @@ void bne(ui32* regis_0, ui32& PC){
         PC = PC + (int32_t(IMMEDIATE) << 2);
     }
 }
-void lb(ui32* regis_0, unsigned long real_mem){
+void lb(ui32* regis_0, void* real_mem){
     int8_t byte;
-    int8_t* pos = (int8_t*)getRealMem(*(regis_0 + I_RS) + int32_t(IMMEDIATE), real_mem);
-    byte = *pos;
+    void* pos = getRealMem(*(regis_0 + I_RS) + int32_t(IMMEDIATE), real_mem);
+    memcpy(&byte, pos, sizeof(byte));
     *(regis_0 + I_RT) = int32_t(byte);
 }
-void lbu(ui32* regis_0, unsigned long real_mem){
+void lbu(ui32* regis_0, void* real_mem){
     u_int8_t byte;
-    u_int8_t* pos = (u_int8_t*)getRealMem(*(regis_0 + I_RS) + int32_t(IMMEDIATE), real_mem);
-    byte = *pos;
+    void* pos = getRealMem(*(regis_0 + I_RS) + int32_t(IMMEDIATE), real_mem);
+    memcpy(&byte, pos, sizeof(byte));
     *(regis_0 + I_RT) = u_int32_t(byte);
 }
-void lh(ui32* regis_0, unsigned long real_mem){
+void lh(ui32* regis_0, void* real_mem){
     int16_t half;
-    int16_t* pos = (int16_t*)getRealMem(*(regis_0 + I_RS) + int32_t(IMMEDIATE), real_mem);
-    half = *pos;
+    void* pos = getRealMem(*(regis_0 + I_RS) + int32_t(IMMEDIATE), real_mem);
+    memcpy(&half, pos, sizeof(half));
     *(regis_0 + I_RT) = int32_t(half);
 }
-void lhu(ui32* regis_0, unsigned long real_mem){
+void lhu(ui32* regis_0, void* real_mem){
     u_int16_t half;
-    u_int16_t* pos = (u_int16_t*)getRealMem(*(regis_0 + I_RS) + int32_t(IMMEDIATE), real_mem);
-    half = *pos;
+    void* pos = getRealMem(*(regis_0 + I_RS) + int32_t(IMMEDIATE), real_mem);
+    memcpy(&half, pos, sizeof(half));
     *(regis_0 + I_RT) = int32_t(half);
 }
-void lui(ui32* regis_0, unsigned long real_mem){
+void lui(ui32* regis_0, void* real_mem){
     *(regis_0 + I_RT) = u_int32_t(IMMEDIATE) << 16;
 }
-void lw(ui32* regis_0, unsigned long real_mem){
-    data_t* pos = (data_t*)getRealMem(*(regis_0 + I_RS) + int32_t(IMMEDIATE), real_mem);
-    *(regis_0 + I_RT) = *pos;
+void lw(ui32* regis_0, void* real_mem){
+    u_int32_t word;
+    void* pos = getRealMem(*(regis_0 + I_RS) + int32_t(IMMEDIATE), real_mem);
+    memcpy(&word, pos, sizeof(word));
+    *(regis_0 + I_RT) = word;
 }
 void ori(ui32* regis_0){
     *(regis_0 + I_RT) = *(regis_0 + I_RS) | u_int32_t(IMMEDIATE);
 }
-void sb(ui32* regis_0, unsigned long real_mem){
-    u_int8_t* pos = (u_int8_t*)getRealMem(*(regis_0 + I_RS) + int32_t(IMMEDIATE), real_mem);
+void sb(ui32* regis_0, void* real_mem){
+    u_int8_t byte;
+    void* pos = getRealMem(*(regis_0 + I_RS) + int32_t(IMMEDIATE), real_mem);
     b8 bs(*(regis_0 + I_RT));
-    *pos = bs.to_ulong();
+    byte = bs.to_ulong();
+    memcpy(pos, &byte, sizeof(byte));
 }
 void slti(ui32* regis_0){
     *(regis_0 + I_RT) = (int32_t(*(regis_0 + I_RS)) < int32_t(IMMEDIATE));
@@ -300,57 +307,45 @@ void slti(ui32* regis_0){
 void sltiu(ui32* regis_0){
     *(regis_0 + I_RT) = (*(regis_0 + I_RS) < u_int32_t(IMMEDIATE));
 }
-void sh(ui32* regis_0, unsigned long real_mem){
-    u_int16_t* pos = (u_int16_t*)getRealMem(*(regis_0 + I_RS) + int32_t(IMMEDIATE), real_mem);
+void sh(ui32* regis_0, void* real_mem){
+    u_int16_t half;
+    void* pos = getRealMem(*(regis_0 + I_RS) + int32_t(IMMEDIATE), real_mem);
     b16 bs(*(regis_0 + I_RT));
-    *pos = bs.to_ulong();
+    half = bs.to_ulong();
+    memcpy(pos, &half, sizeof(half));
 }
-void sw(ui32* regis_0, unsigned long real_mem){
-    u_int32_t* pos = (u_int32_t*)getRealMem(*(regis_0 + I_RS) + int32_t(IMMEDIATE), real_mem);
+void sw(ui32* regis_0, void* real_mem){
+    u_int32_t word;
+    void* pos = getRealMem(*(regis_0 + I_RS) + int32_t(IMMEDIATE), real_mem);
     b32 bs(*(regis_0 + I_RT));
-    *pos = bs.to_ulong();
+    word = bs.to_ulong();
+    memcpy(pos, &word, sizeof(word));
 }
 void xori(ui32* regis_0){
     *(regis_0 + I_RT) = (*(regis_0 + I_RS) xor u_int32_t(IMMEDIATE));
 }
-void lwl(ui32* regis_0, unsigned long real_mem){
-    int count = 4 - (*(regis_0 + I_RS) + int32_t(IMMEDIATE)) % 4;
-    mem_t memor;
-    unsigned long regis = (unsigned long)(regis_0 + I_RT);
-    for (int i=0;i<count;i++){
-        memor = *(regis_0 + I_RS) + int32_t(IMMEDIATE) + mem_t(i);
-        regis = regis + (long long)(i);
-        *(u_int8_t*)regis = *(u_int8_t*)getRealMem(memor, real_mem);
-    }
+void lwl(ui32* regis_0, void* real_mem){
+    size_t size = 4 - (*(regis_0 + I_RS) + int32_t(IMMEDIATE)) % 4;
+    void* regis_pos = regis_0 + I_RT;
+    void* mem_pos = getRealMem((*(regis_0 + I_RS) + int32_t(IMMEDIATE)), real_mem);
+    memcpy(regis_pos, mem_pos, size);
 }
-void lwr(ui32* regis_0, unsigned long real_mem){
-    int count = 4 - (*(regis_0 + I_RS) + int32_t(IMMEDIATE)) % 4;
-    mem_t memor;
-    unsigned long regis = (unsigned long)(regis_0 + I_RT);
-    for (int i=0;i<count;i++){
-        memor = *(regis_0 + I_RS) + int32_t(IMMEDIATE) - mem_t(i);
-        regis = regis - (long long)(i);
-        *(u_int8_t*)regis = *(u_int8_t*)getRealMem(memor, real_mem);
-    }
+void lwr(ui32* regis_0, void* real_mem){
+    size_t size = (*(regis_0 + I_RS) + int32_t(IMMEDIATE)) % 4;
+    void* regis_pos = (u_int8_t*)(regis_0 + I_RT) + 4 - size;
+    void* mem_pos = getRealMem((*(regis_0 + I_RS) + int32_t(IMMEDIATE)) - size, real_mem);
+    memcpy(regis_pos, mem_pos, size);
 }
-void swr(ui32* regis_0, unsigned long real_mem){
-    int count = 4 - (*(regis_0 + I_RS) + int32_t(IMMEDIATE)) % 4;
-    mem_t memor;
-    unsigned long regis = (unsigned long)(regis_0 + I_RT);
-    for (int i=0;i<count;i++){
-        memor = *(regis_0 + I_RS) + int32_t(IMMEDIATE) - mem_t(i);
-        regis = regis - (long long)(i);
-        *(u_int8_t*)getRealMem(memor, real_mem) = *(u_int8_t*)regis;
-    }
+void swr(ui32* regis_0, void* real_mem){
+    size_t size = (*(regis_0 + I_RS) + int32_t(IMMEDIATE)) % 4;
+    void* regis_pos = (u_int8_t*)(regis_0 + I_RT) + 4 - size;
+    void* mem_pos = getRealMem((*(regis_0 + I_RS) + int32_t(IMMEDIATE)) - size, real_mem);
+    memcpy(mem_pos, regis_pos, size);
 }
-void swl(ui32* regis_0, unsigned long real_mem){
-    int count = 4 - (*(regis_0 + I_RS) + int32_t(IMMEDIATE)) % 4;
-    mem_t memor;
-    unsigned long regis = (unsigned long)(regis_0 + I_RT);
-    for (int i=0;i<count;i++){
-        memor = *(regis_0 + I_RS) + int32_t(IMMEDIATE) + mem_t(i);
-        regis = regis + (long long)(i);
-        *(u_int8_t*)getRealMem(memor, real_mem) = *(u_int8_t*)regis;
-    }
+void swl(ui32* regis_0, void* real_mem){
+    size_t size = 4 - (*(regis_0 + I_RS) + int32_t(IMMEDIATE)) % 4;
+    void* regis_pos = regis_0 + I_RT;
+    void* mem_pos = getRealMem((*(regis_0 + I_RS) + int32_t(IMMEDIATE)), real_mem);
+    memcpy(mem_pos, regis_pos, size);
 }
 

@@ -1,5 +1,5 @@
 #include "JInstruction.hpp"
-#include "conversion.hpp"
+#include "../conversion.hpp"
 #include <unordered_map>
 #include <iostream>
 
@@ -32,7 +32,7 @@ void j(ui32 & PC){
     PC = bs.to_ulong();
 }
 void jal(ui32 & PC, ui32* regis_0){
-    *(regis_0 + 32) = PC + 4;
+    *(regis_0 + 32) = PC;
     b32 bs(toBinary32str(PC).substr(0,4) + target + "00");
     PC = bs.to_ulong();
 }

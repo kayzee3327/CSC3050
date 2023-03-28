@@ -1,5 +1,5 @@
 #include "RInstruction.hpp"
-#include "conversion.hpp"
+#include "../conversion.hpp"
 
 #include <iostream>
 #include <unordered_map>
@@ -48,8 +48,8 @@ void callRInstruction(
     ui32 & HI,
     ui32 & LO,
     ui32 & PC, 
-    FILE* f_in, FILE* f_out, 
-    unsigned long real_mem, 
+    std::ifstream & f_in, std::ofstream & f_out, 
+    void* real_mem, 
     ui32 & currentHeapBlock, ui32 & currentHeapBlock_size, ui32 & dynamic_top
 ) {
     R_rs = _rs;

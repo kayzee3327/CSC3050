@@ -1,15 +1,17 @@
 #include "Syscall.hpp"
-#include "conversion.hpp"
+#include "../conversion.hpp"
+
+#include <iostream>
+#include <fstream>
 
 #include <unistd.h>
-#include <iostream>
 #include <string.h>
 #include <fcntl.h>
 
 void syscall(
     ui32* regis_0, ui32 & PC, 
-    FILE* f_in, FILE* f_out, 
-    unsigned long real_mem, 
+    std::ifstream & f_in, std::ofstream & f_out, 
+    void* real_mem, 
     ui32 & currentHeapBlock, ui32 & currentHeapBlock_size, ui32 & dynamic_top
 ) {
     ui32 v0 = *(regis_0 + 2);
@@ -60,23 +62,25 @@ void syscall(
     }
 }
 
-void print_int(FILE* f_out, ui32* regis_0){
-    fprintf(f_out, "%d\n", *(regis_0+4));
+void print_int(std::ofstream & f_out, ui32* regis_0){
+    int tmp = regis_0[4];
+    f_out << tmp << std::endl;
 }
-void print_string(FILE* f_out, ui32* regis_0, unsigned long real_mem){
+void print_string(std::ofstream & f_out, ui32* regis_0, void* real_mem){
     char* pos = (char*)getRealMem(*(regis_0 + 4), real_mem);
-    fprintf(f_out, "%s\n", *pos);
+    std::string tmp(pos);
+    f_out << tmp << std::endl;
 }
-void read_int(FILE* f_in, ui32* regis_0){
+void read_int(std::ifstream & f_in, ui32* regis_0){
     int32_t tmp;
-    fscanf(f_in, "%d", &tmp);
-    *(regis_0 + 2) = tmp;
+    f_in >> tmp;
+    regis_0[2] = tmp;
 }
-void read_string(FILE* f_in, ui32* regis_0, unsigned long real_mem){
+void read_string(std::ifstream & f_in, ui32* regis_0, void* real_mem){
     char* pos = (char*)getRealMem(*(regis_0 + 4), real_mem);
-    char* str;
-    fgets(str, 0xFFFF, f_in);
-    strcpy(pos,str);
+    S tmp;
+    f_in >> std::skipws >> tmp;
+    strcpy(pos, tmp.c_str());
 }
 void sbrk(
     ui32 & currentHeapBlock, ui32 & currenHeapBlock_size, 
@@ -91,23 +95,24 @@ void sbrk(
 void exit1(){
     exit(0);
 }
-void print_char(FILE* f_out, ui32* regis_0){
-    fprintf(f_out, "%c", *(regis_0 + 4));
+void print_char(std::ofstream & f_out, ui32* regis_0){
+    char tmp = regis_0[4];
+    f_out << tmp << std::endl;
 }
-void read_char(FILE* f_in, ui32* regis_0){
-    char32_t tmp;
-    fscanf(f_in, "%c", &tmp);
+void read_char(std::ifstream & f_in, ui32* regis_0){
+    char tmp;
+    f_in >> tmp;
     *(regis_0 + 2) = tmp;
 }
-void open(ui32* regis_0, unsigned long real_mem){
+void open(ui32* regis_0, void* real_mem){
     char* file_ptr = (char*)getRealMem(*(regis_0 + 4), real_mem);
     *(regis_0 + 4) = open(file_ptr, *(regis_0 + 5), *(regis_0 + 6));
 }
-void read(ui32* regis_0, unsigned long real_mem){
+void read(ui32* regis_0, void* real_mem){
     char* buffer = (char*)getRealMem(*(regis_0 + 5), real_mem);
     *(regis_0 + 4) = read(*(regis_0 + 4), buffer, *(regis_0 + 6));
 }
-void write(ui32* regis_0, unsigned long real_mem){
+void write(ui32* regis_0, void* real_mem){
     char* buffer = (char*)getRealMem(*(regis_0 + 5), real_mem);
     *(regis_0 + 4) = write(*(regis_0 + 4), buffer, *(regis_0 + 6));
 }

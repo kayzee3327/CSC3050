@@ -27,18 +27,18 @@ void initialization(
     ui32 & gp,
     ui32 & sp,
     ui32 & fp,
-    FILE* f_in,
-    FILE* f_out,
+    std::ifstream & f_in,
+    std::ofstream & f_out,
     ui32 & dynamic_top
 );
-void readDataSection(S asmSourceFile, ui32 & dynamic_top, unsigned real_mem);
-void readInstructions(S assembledBinCodesFile, unsigned long real_mem);
+void readDataSection(S asmSourceFile, ui32 & dynamic_top, void* real_mem);
+void readInstructions(S assembledBinCodesFile, void* real_mem);
 
-mem_t read_ascii(mem_t mem, S s, unsigned long real_mem);
-mem_t read_asciiz(mem_t mem, S s, unsigned long real_mem);
-mem_t read_word(mem_t mem, int32_t x, unsigned long real_mem);
-mem_t read_byte(mem_t mem, std::vector<int8_t> v, unsigned long real_mem);
-mem_t read_half(mem_t mem, std::vector<int16_t> v, unsigned long real_mem);
+mem_t read_ascii(mem_t mem, S s, void* real_mem);
+mem_t read_asciiz(mem_t mem, S s, void* real_mem);
+mem_t read_word(mem_t mem, int32_t x, void* real_mem);
+mem_t read_byte(mem_t mem, std::vector<int8_t> v, void* real_mem);
+mem_t read_half(mem_t mem, std::vector<int16_t> v, void* real_mem);
 
 
 #endif
